@@ -33,6 +33,7 @@ export default function ProfileSettingsPage() {
   const [showConfirmPassword, setShowConfirmPassword] = React.useState(false);
   const [passwordSaved, setPasswordSaved] = React.useState(false);
   const [passwordError, setPasswordError] = React.useState<string | null>(null);
+  const [isChangingPassword, setIsChangingPassword] = React.useState(false);
 
   const handleSaveProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -42,7 +43,7 @@ export default function ProfileSettingsPage() {
     setTimeout(() => setIsSaved(false), 2000);
   };
 
-  const handleChangePassword = (e: React.FormEvent) => {
+  const handleChangePassword = async (e: React.FormEvent) => {
     e.preventDefault();
     setPasswordError(null);
     if (!currentPassword) {
@@ -57,11 +58,37 @@ export default function ProfileSettingsPage() {
       setPasswordError('Passwords do not match.');
       return;
     }
-    setPasswordSaved(true);
-    setCurrentPassword('');
-    setNewPassword('');
-    setConfirmPassword('');
-    setTimeout(() => setPasswordSaved(false), 2500);
+
+    setIsChangingPassword(true);
+    try {
+      const res = await fetch('/api/crm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'change_password',
+          data: {
+            email: user?.email,
+            current_password: currentPassword,
+            new_password: newPassword,
+          },
+        }),
+      });
+
+      const json = await res.json().catch(() => null);
+      if (!res.ok || !json?.success) {
+        throw new Error(json?.error || 'Failed to update password.');
+      }
+
+      setPasswordSaved(true);
+      setCurrentPassword('');
+      setNewPassword('');
+      setConfirmPassword('');
+      setTimeout(() => setPasswordSaved(false), 3000);
+    } catch (err: any) {
+      setPasswordError(err.message || 'Failed to update password.');
+    } finally {
+      setIsChangingPassword(false);
+    }
   };
 
   return (
@@ -237,9 +264,9 @@ export default function ProfileSettingsPage() {
             )}
 
             <div className="flex items-center space-x-2 pt-2">
-              <Button type="submit" size="sm" className="gap-1.5">
+              <Button type="submit" size="sm" className="gap-1.5" disabled={isChangingPassword}>
                 <KeyRound className="h-3.5 w-3.5" />
-                <span>Update Password</span>
+                <span>{isChangingPassword ? 'Updating...' : 'Update Password'}</span>
               </Button>
               {passwordSaved && (
                 <span className="flex items-center text-xs text-emerald-600 font-medium">

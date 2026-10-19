@@ -429,6 +429,201 @@ export async function POST(request: Request) {
       return NextResponse.json({ success: true, message: 'Team reset to active status' });
     }
 
+    // User Authentication via Supabase Auth
+    if (action === 'login') {
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+      const email = data?.email?.trim().toLowerCase();
+      const password = data?.password;
+
+      if (!email || !password) {
+        return NextResponse.json(
+          { success: false, error: 'Both email and password are required.' },
+          { status: 400 }
+        );
+      }
+
+      if (!supabaseUrl || !anonKey) {
+        return NextResponse.json(
+          { success: false, error: 'Authentication service is not configured.' },
+          { status: 500 }
+        );
+      }
+
+      // 1. Authenticate credentials against Supabase Auth
+      const authRes = await fetch(`${supabaseUrl}/auth/v1/token?grant_type=password`, {
+        method: 'POST',
+        headers: {
+          apikey: anonKey,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password }),
+      });
+
+      if (!authRes.ok) {
+        const errJson = await authRes.json().catch(() => null);
+        const errMsg =
+          errJson?.error_description ||
+          errJson?.msg ||
+          'Invalid email or password. Please verify your credentials.';
+        return NextResponse.json(
+          { success: false, error: errMsg },
+          { status: 401 }
+        );
+      }
+
+      const tokenData = await authRes.json();
+      const authUser = tokenData.user;
+
+      // 2. Fetch user profile from database
+      const profileRows = await supabaseRest(`profiles?id=eq.${authUser.id}`).catch(() => []);
+      let profile = Array.isArray(profileRows) && profileRows.length > 0 ? profileRows[0] : null;
+
+      if (!profile) {
+        const emailRows = await supabaseRest(`profiles?email=eq.${encodeURIComponent(email)}`).catch(() => []);
+        profile = Array.isArray(emailRows) && emailRows.length > 0 ? emailRows[0] : null;
+      }
+
+      if (!profile || profile.deleted_at) {
+        return NextResponse.json(
+          { success: false, error: 'Your account is no longer active or has been deleted.' },
+          { status: 403 }
+        );
+      }
+
+      if (!profile.is_active) {
+        return NextResponse.json(
+          { success: false, error: 'Your account has been suspended. Please contact your organization owner.' },
+          { status: 403 }
+        );
+      }
+
+      return NextResponse.json({
+        success: true,
+        data: profile,
+        access_token: tokenData.access_token,
+      });
+    }
+
+    // Update / Set User Password (by user ID or email)
+    if (action === 'update_password') {
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+      const targetUserId = id || data?.user_id;
+      const targetEmail = data?.email?.trim().toLowerCase();
+      const newPassword = data?.password;
+
+      if (!newPassword || newPassword.length < 6) {
+        return NextResponse.json(
+          { success: false, error: 'Password must be at least 6 characters long.' },
+          { status: 400 }
+        );
+      }
+
+      let authUserId = targetUserId;
+
+      if (!authUserId && targetEmail) {
+        const profileRows = await supabaseRest(`profiles?email=eq.${encodeURIComponent(targetEmail)}`).catch(() => []);
+        if (Array.isArray(profileRows) && profileRows.length > 0) {
+          authUserId = profileRows[0].id;
+        }
+      }
+
+      if (!authUserId) {
+        return NextResponse.json(
+          { success: false, error: 'User account could not be found to update password.' },
+          { status: 404 }
+        );
+      }
+
+      const updateRes = await fetch(`${supabaseUrl}/auth/v1/admin/users/${authUserId}`, {
+        method: 'PUT',
+        headers: {
+          apikey: serviceKey!,
+          Authorization: `Bearer ${serviceKey!}`,
+          'Content-Type': 'application/json',
+          'User-Agent': 'SupabaseAdmin/1.0',
+        },
+        body: JSON.stringify({ password: newPassword }),
+      });
+
+      if (!updateRes.ok) {
+        const errJson = await updateRes.json().catch(() => null);
+        return NextResponse.json(
+          { success: false, error: errJson?.message || 'Failed to update password.' },
+          { status: 400 }
+        );
+      }
+
+      return NextResponse.json({ success: true, message: 'Password updated successfully.' });
+    }
+
+    // Change Password (requires current password verification)
+    if (action === 'change_password') {
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const anonKey = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
+      const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+      const email = data?.email?.trim().toLowerCase();
+      const currentPassword = data?.current_password;
+      const newPassword = data?.new_password;
+
+      if (!email || !currentPassword || !newPassword) {
+        return NextResponse.json(
+          { success: false, error: 'Current password and new password are required.' },
+          { status: 400 }
+        );
+      }
+
+      if (newPassword.length < 6) {
+        return NextResponse.json(
+          { success: false, error: 'New password must be at least 6 characters long.' },
+          { status: 400 }
+        );
+      }
+
+      // 1. Verify current password
+      const verifyRes = await fetch(`${supabaseUrl}/auth/v1/token?grant_type=password`, {
+        method: 'POST',
+        headers: {
+          apikey: anonKey!,
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ email, password: currentPassword }),
+      });
+
+      if (!verifyRes.ok) {
+        return NextResponse.json(
+          { success: false, error: 'Current password is incorrect. Please try again.' },
+          { status: 401 }
+        );
+      }
+
+      const tokenData = await verifyRes.json();
+      const authUserId = tokenData.user?.id;
+
+      // 2. Update to new password
+      const updateRes = await fetch(`${supabaseUrl}/auth/v1/admin/users/${authUserId}`, {
+        method: 'PUT',
+        headers: {
+          apikey: serviceKey!,
+          Authorization: `Bearer ${serviceKey!}`,
+          'Content-Type': 'application/json',
+          'User-Agent': 'SupabaseAdmin/1.0',
+        },
+        body: JSON.stringify({ password: newPassword }),
+      });
+
+      if (!updateRes.ok) {
+        const errJson = await updateRes.json().catch(() => null);
+        return NextResponse.json(
+          { success: false, error: errJson?.message || 'Failed to update password.' },
+          { status: 400 }
+        );
+      }
+
+      return NextResponse.json({ success: true, message: 'Password updated successfully.' });
+    }
+
     // User Creation via Supabase Auth Admin
     if (action === 'create_user' || (table === 'profiles' && action === 'insert')) {
       const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;

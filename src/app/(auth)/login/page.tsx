@@ -15,7 +15,7 @@ export default function LoginPage() {
   const router = useRouter();
   const { login, switchDemoUser, profiles } = useAuth();
   const [email, setEmail] = React.useState('techieslearnshiz@gmail.com');
-  const [password, setPassword] = React.useState('••••••••••••');
+  const [password, setPassword] = React.useState('');
   const [showPassword, setShowPassword] = React.useState(false);
   const [isLoading, setIsLoading] = React.useState(false);
   const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
@@ -94,7 +94,7 @@ export default function LoginPage() {
                     type={showPassword ? 'text' : 'password'}
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••••••"
+                    placeholder="Enter your password"
                     className="pr-10"
                     required
                   />
@@ -112,6 +112,9 @@ export default function LoginPage() {
                     )}
                   </button>
                 </div>
+                <p className="text-[11px] text-zinc-400 dark:text-zinc-500 pt-0.5">
+                  Default owner password: <code className="rounded bg-zinc-100 px-1 py-0.5 font-mono text-[10px] text-zinc-700 dark:bg-zinc-800 dark:text-zinc-300">password123</code>
+                </p>
               </div>
 
               <Button type="submit" className="w-full text-xs" disabled={isLoading}>

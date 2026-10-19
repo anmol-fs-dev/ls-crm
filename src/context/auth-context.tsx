@@ -94,31 +94,38 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  const login = async (email: string, _password?: string): Promise<Profile> => {
-    // 1. Fetch fresh profiles from database
-    const freshProfiles = await refreshProfiles();
+  const login = async (email: string, password?: string): Promise<Profile> => {
     const cleanEmail = email.trim().toLowerCase();
 
-    // 2. Find exact matching user account
-    const found = freshProfiles.find(
-      (p) => p.email.toLowerCase() === cleanEmail && !p.deleted_at
-    );
+    const res = await fetch('/api/crm', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        action: 'login',
+        data: {
+          email: cleanEmail,
+          password: password,
+        },
+      }),
+    });
 
-    if (!found) {
-      throw new Error(`No active user found with email "${email}". Please verify your credentials or accept an invitation.`);
+    const json = await res.json().catch(() => ({ success: false, error: 'Authentication service unreachable.' }));
+
+    if (!res.ok || !json.success) {
+      throw new Error(json.error || 'Invalid email or password. Please verify your credentials.');
     }
 
-    if (!found.is_active) {
-      throw new Error(`Account "${email}" has been suspended. Please contact your organization owner.`);
-    }
-
+    const found: Profile = json.data;
     setUser(found);
+
     try {
       localStorage.setItem(AUTH_STORAGE_KEY, found.id);
       document.cookie = `crm_active_profile_id=${found.id}; path=/; max-age=604800; SameSite=Lax`;
     } catch (e) {
       console.warn('Storage error on login', e);
     }
+
+    await refreshProfiles();
     return found;
   };
 

@@ -46,7 +46,26 @@ function AcceptInviteContent() {
     setIsSubmitting(true);
     setError(null);
     try {
-      await login(emailParam);
+      // 1. Set chosen password in database
+      const updateRes = await fetch('/api/crm', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          action: 'update_password',
+          data: {
+            email: emailParam,
+            password: password,
+          },
+        }),
+      });
+
+      const updateJson = await updateRes.json().catch(() => null);
+      if (!updateRes.ok || !updateJson?.success) {
+        throw new Error(updateJson?.error || 'Failed to set password. Please try again.');
+      }
+
+      // 2. Sign in with newly configured password
+      await login(emailParam, password);
       router.push('/');
     } catch (err: any) {
       setError(err.message || 'Failed to activate invitation. Please contact your organization owner.');
