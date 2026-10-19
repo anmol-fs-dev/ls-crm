@@ -758,7 +758,7 @@ export function CrmDataProvider({ children }: { children: React.ReactNode }) {
       id: crypto.randomUUID ? crypto.randomUUID() : `act-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
       description: activity.description || null,
       metadata: activity.metadata || {},
-      created_by: 'usr-1',
+      created_by: '9b06dc03-ac1a-4f05-8cc6-59a66911d4ac',
       created_at: new Date().toISOString(),
     };
 

@@ -36,7 +36,7 @@ const INITIAL_AUDIT_LOGS: AuditLog[] = [
   {
     id: 'log-1',
     vertical_id: 'vert-3',
-    user_id: 'usr-1',
+    user_id: '9b06dc03-ac1a-4f05-8cc6-59a66911d4ac',
     action: 'UPDATE',
     entity_type: 'lead',
     entity_id: 'lead-1',
@@ -49,7 +49,7 @@ const INITIAL_AUDIT_LOGS: AuditLog[] = [
   {
     id: 'log-2',
     vertical_id: 'vert-3',
-    user_id: 'usr-2',
+    user_id: '9b06dc03-ac1a-4f05-8cc6-59a66911d4ac',
     action: 'CONVERT',
     entity_type: 'customer',
     entity_id: 'cust-1',
@@ -62,7 +62,7 @@ const INITIAL_AUDIT_LOGS: AuditLog[] = [
   {
     id: 'log-3',
     vertical_id: 'vert-1',
-    user_id: 'usr-1',
+    user_id: '9b06dc03-ac1a-4f05-8cc6-59a66911d4ac',
     action: 'CREATE',
     entity_type: 'vertical',
     entity_id: 'vert-1',
@@ -75,7 +75,7 @@ const INITIAL_AUDIT_LOGS: AuditLog[] = [
   {
     id: 'log-4',
     vertical_id: 'vert-3',
-    user_id: 'usr-1',
+    user_id: '9b06dc03-ac1a-4f05-8cc6-59a66911d4ac',
     action: 'CREATE',
     entity_type: 'vertical',
     entity_id: 'vert-3',

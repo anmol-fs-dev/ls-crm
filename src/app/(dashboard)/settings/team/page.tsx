@@ -12,7 +12,6 @@ import {
   CheckCircle2,
   Trash2,
   Lock,
-  RotateCcw,
   Loader2,
   AlertCircle,
 } from 'lucide-react';
@@ -215,23 +214,6 @@ export default function TeamSettingsPage() {
     }
   };
 
-  // Reset demo team in Supabase
-  const handleResetDemoTeam = async () => {
-    try {
-      await fetch('/api/crm', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ action: 'reset_team' }),
-      });
-      await fetchMembers();
-      await refreshProfiles();
-      setSuccessMessage('Team roster reset to default accounts.');
-      setTimeout(() => setSuccessMessage(null), 3000);
-    } catch (e) {
-      console.warn('Failed to reset demo team', e);
-    }
-  };
-
   return (
     <div className="space-y-6">
       {/* Sub-Header */}
@@ -245,16 +227,6 @@ export default function TeamSettingsPage() {
           </p>
         </div>
         <div className="flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={handleResetDemoTeam}
-            className="h-8 gap-1.5 text-xs text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
-            title="Reset team to initial active accounts"
-          >
-            <RotateCcw className="h-3 w-3" />
-            <span>Reset Demo Team</span>
-          </Button>
           {isAdmin && (
             <Button
               onClick={() => {
