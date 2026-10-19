@@ -1,0 +1,31 @@
+name: Supabase Free-Tier Keep Alive
+
+on:
+  schedule:
+    # Run every Monday and Thursday at 06:00 UTC to prevent 7-day inactivity pause
+    - cron: '0 6 * * 1,4'
+  workflow_dispatch: # Allows manual trigger from GitHub UI
+
+jobs:
+  ping-supabase:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Ping Supabase REST API to prevent auto-hibernation
+        run: |
+          if [ -z "${{ secrets.SUPABASE_URL }}" ] || [ -z "${{ secrets.SUPABASE_ANON_KEY }}" ]; then
+            echo "Secrets SUPABASE_URL or SUPABASE_ANON_KEY are not configured. Skipping ping."
+            exit 0
+          fi
+
+          echo "Pinging Supabase database health endpoint..."
+          STATUS=$(curl -s -o /dev/null -w "%{http_code}" \
+            -H "apikey: ${{ secrets.SUPABASE_ANON_KEY }}" \
+            -H "Authorization: Bearer ${{ secrets.SUPABASE_ANON_KEY }}" \
+            "${{ secrets.SUPABASE_URL }}/rest/v1/verticals?select=id&limit=1")
+
+          echo "Response HTTP Status: $STATUS"
+          if [ "$STATUS" -eq 200 ] || [ "$STATUS" -eq 206 ]; then
+            echo "Supabase ping successful! Database remains warm."
+          else
+            echo "Warning: Received HTTP $STATUS. Check your Supabase URL and anon key."
+          fi
