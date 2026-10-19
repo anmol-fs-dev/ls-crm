@@ -28,7 +28,7 @@ import {
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
 import { formatDate, sanitizeCsvCell } from '@/lib/utils';
-import { MOCK_PROFILES } from '@/lib/mock-data';
+import { useAuth } from '@/context/auth-context';
 
 interface CustomerTableProps {
   customers: Customer[];
@@ -42,7 +42,8 @@ export function CustomerTable({
   onDeleteCustomer,
 }: CustomerTableProps) {
   const { customerVerticals } = useCrmData();
-  const { verticals, selectedVerticalId } = useVertical();
+  const { verticals, selectedVertical, selectedVerticalId, setSelectedVerticalId } = useVertical();
+  const { profiles } = useAuth();
 
   // Filters
   const [search, setSearch] = React.useState('');
@@ -125,7 +126,7 @@ export function CustomerTable({
   const handleExportCsv = () => {
     const headers = ['Name', 'Type', 'Email', 'Phone', 'Company', 'Status', 'Owner', 'Linked Verticals', 'Tags'];
     const rows = sortedCustomers.map((c) => {
-      const owner = MOCK_PROFILES.find((p) => p.id === c.owner_id)?.full_name || 'Unassigned';
+      const owner = profiles.find((p) => p.id === c.owner_id)?.full_name || 'Unassigned';
       const linked = getCustomerVerticals(c.id).map((v) => v.name).join('; ');
 
       return [
@@ -239,14 +240,30 @@ export function CustomerTable({
             <tbody className="divide-y divide-zinc-100 dark:divide-zinc-800">
               {paginatedCustomers.length === 0 ? (
                 <tr>
-                  <td colSpan={7} className="p-8 text-center text-zinc-400">
-                    No customers found matching current filters.
+                  <td colSpan={7} className="p-8 text-center text-zinc-500">
+                    <div className="flex flex-col items-center justify-center space-y-2">
+                      <Building2 className="h-8 w-8 text-zinc-300 dark:text-zinc-700" />
+                      <p className="text-xs font-medium text-zinc-600 dark:text-zinc-400">
+                        {selectedVerticalId !== 'all'
+                          ? `No customer accounts found linked to ${selectedVertical?.name || 'this vertical'}.`
+                          : 'No customers found matching current filters.'}
+                      </p>
+                      {selectedVerticalId !== 'all' && (
+                        <button
+                          type="button"
+                          onClick={() => setSelectedVerticalId('all')}
+                          className="text-xs text-indigo-600 dark:text-indigo-400 hover:underline cursor-pointer font-medium"
+                        >
+                          Switch to All Verticals (Global Workspace)
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ) : (
                 paginatedCustomers.map((cust) => {
                   const linkedVerts = getCustomerVerticals(cust.id);
-                  const owner = MOCK_PROFILES.find((p) => p.id === cust.owner_id);
+                  const owner = profiles.find((p) => p.id === cust.owner_id);
 
                   return (
                     <tr
@@ -376,7 +393,7 @@ export function CustomerTable({
         {/* Pagination */}
         <div className="flex items-center justify-between border-t border-zinc-200 dark:border-zinc-800 p-3 text-xs text-zinc-500">
           <span>
-            Showing {(currentPage - 1) * pageSize + 1} to{' '}
+            Showing {sortedCustomers.length === 0 ? 0 : (currentPage - 1) * pageSize + 1} to{' '}
             {Math.min(currentPage * pageSize, sortedCustomers.length)} of {sortedCustomers.length} accounts
           </span>
           <div className="flex items-center space-x-1">

@@ -21,9 +21,22 @@ export default function CustomersPage() {
   const [editingVerticalIds, setEditingVerticalIds] = React.useState<string[]>([]);
   const [deleteTargetId, setDeleteTargetId] = React.useState<string | null>(null);
 
-  // Compute metrics
-  const activeCustomers = customers.filter((c) => !c.deleted_at && c.lifecycle_status === 'active');
-  const multiVerticalCount = customers.filter((c) => {
+  // Scope customers to the active workspace vertical
+  const scopedCustomers = React.useMemo(() => {
+    if (selectedVerticalId === 'all') {
+      return customers.filter((c) => !c.deleted_at);
+    }
+    return customers.filter((c) => {
+      if (c.deleted_at) return false;
+      return customerVerticals.some(
+        (cv) => cv.customer_id === c.id && cv.vertical_id === selectedVerticalId
+      );
+    });
+  }, [customers, customerVerticals, selectedVerticalId]);
+
+  // Compute metrics for the active scoped view
+  const activeCustomers = scopedCustomers.filter((c) => c.lifecycle_status === 'active');
+  const multiVerticalCount = scopedCustomers.filter((c) => {
     const links = customerVerticals.filter((cv) => cv.customer_id === c.id);
     return links.length > 1;
   }).length;
@@ -50,11 +63,13 @@ export default function CustomersPage() {
               Customer Directory
             </h1>
             <Badge variant="secondary" className="font-mono text-xs">
-              {customers.filter((c) => !c.deleted_at).length} Accounts
+              {scopedCustomers.length} Accounts
             </Badge>
           </div>
           <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
-            Unified multi-vertical customer 360 directory, cross-vertical engagements, and lifecycle accounts.
+            {selectedVertical
+              ? `Customer 360 directory and accounts scoped to ${selectedVertical.name}.`
+              : 'Unified multi-vertical customer 360 directory, cross-vertical engagements, and lifecycle accounts.'}
           </p>
         </div>
 
@@ -77,7 +92,7 @@ export default function CustomersPage() {
                 Total Accounts
               </p>
               <h3 className="text-xl font-bold text-zinc-900 dark:text-zinc-50 mt-1">
-                {customers.filter((c) => !c.deleted_at).length}
+                {scopedCustomers.length}
               </h3>
             </div>
             <Building2 className="h-6 w-6 text-zinc-400" />
@@ -115,7 +130,7 @@ export default function CustomersPage() {
 
       {/* Main Table */}
       <CustomerTable
-        customers={customers.filter((c) => !c.deleted_at)}
+        customers={scopedCustomers}
         onEditCustomer={handleEdit}
         onDeleteCustomer={(id) => setDeleteTargetId(id)}
       />
