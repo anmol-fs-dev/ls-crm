@@ -14,7 +14,7 @@ import { Badge } from '@/components/ui/badge';
 export default function LoginPage() {
   const router = useRouter();
   const { login, switchDemoUser, profiles } = useAuth();
-  const [email, setEmail] = React.useState('alex.director@company.com');
+  const [email, setEmail] = React.useState('techieslearnshiz@gmail.com');
   const [password, setPassword] = React.useState('••••••••••••');
   const [isLoading, setIsLoading] = React.useState(false);
   const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
