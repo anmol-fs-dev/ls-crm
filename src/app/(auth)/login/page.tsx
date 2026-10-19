@@ -10,24 +10,31 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { MOCK_PROFILES } from '@/lib/mock-data';
 
 export default function LoginPage() {
   const router = useRouter();
-  const { login, switchDemoUser } = useAuth();
+  const { login, switchDemoUser, profiles } = useAuth();
   const [email, setEmail] = React.useState('alex.director@company.com');
   const [password, setPassword] = React.useState('••••••••••••');
   const [isLoading, setIsLoading] = React.useState(false);
+  const [errorMsg, setErrorMsg] = React.useState<string | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    await login(email, password);
-    setIsLoading(false);
-    router.push('/');
+    setErrorMsg(null);
+    try {
+      await login(email, password);
+      router.push('/');
+    } catch (err: any) {
+      setErrorMsg(err.message || 'Login failed. Please check your credentials.');
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const handleQuickDemoLogin = (userId: string) => {
+    setErrorMsg(null);
     switchDemoUser(userId);
     router.push('/');
   };
@@ -58,6 +65,12 @@ export default function LoginPage() {
           </CardHeader>
           <form onSubmit={handleSubmit}>
             <CardContent className="space-y-4">
+              {errorMsg && (
+                <div className="rounded-md border border-red-200 bg-red-50 p-2.5 text-xs text-red-700 dark:border-red-900/40 dark:bg-red-950/40 dark:text-red-300">
+                  {errorMsg}
+                </div>
+              )}
+
               <div className="space-y-1.5">
                 <Label htmlFor="email" className="text-xs">Corporate Email</Label>
                 <Input
@@ -99,26 +112,28 @@ export default function LoginPage() {
               </span>
             </div>
             <div className="grid grid-cols-2 gap-2">
-              {MOCK_PROFILES.map((p) => (
-                <button
-                  key={p.id}
-                  type="button"
-                  onClick={() => handleQuickDemoLogin(p.id)}
-                  className="flex flex-col items-start rounded-md border border-zinc-200 p-2 text-left hover:bg-zinc-100/70 dark:border-zinc-800 dark:hover:bg-zinc-900 transition-colors cursor-pointer"
-                >
-                  <div className="flex items-center justify-between w-full">
-                    <span className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 truncate">
-                      {p.full_name}
+              {profiles
+                .filter((p) => !p.deleted_at && p.is_active)
+                .map((p) => (
+                  <button
+                    key={p.id}
+                    type="button"
+                    onClick={() => handleQuickDemoLogin(p.id)}
+                    className="flex flex-col items-start rounded-md border border-zinc-200 p-2 text-left hover:bg-zinc-100/70 dark:border-zinc-800 dark:hover:bg-zinc-900 transition-colors cursor-pointer"
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <span className="text-xs font-semibold text-zinc-900 dark:text-zinc-100 truncate">
+                        {p.full_name}
+                      </span>
+                      <Badge variant="outline" className="text-[9px] uppercase px-1 py-0 h-4">
+                        {p.role}
+                      </Badge>
+                    </div>
+                    <span className="text-[10px] text-zinc-400 truncate w-full mt-0.5">
+                      {p.email}
                     </span>
-                    <Badge variant="outline" className="text-[9px] uppercase px-1 py-0 h-4">
-                      {p.role}
-                    </Badge>
-                  </div>
-                  <span className="text-[10px] text-zinc-400 truncate w-full mt-0.5">
-                    {p.email}
-                  </span>
-                </button>
-              ))}
+                  </button>
+                ))}
             </div>
           </div>
 

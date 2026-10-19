@@ -23,6 +23,7 @@ export async function middleware(request: NextRequest) {
   // 2. Allow public auth & asset paths
   const isAuthRoute =
     pathname.startsWith('/login') ||
+    pathname.startsWith('/signin') ||
     pathname.startsWith('/accept-invite');
   const isAssetRoute =
     pathname.startsWith('/_next') ||

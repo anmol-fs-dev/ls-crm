@@ -29,33 +29,24 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
-import { MOCK_PROFILES } from '@/lib/mock-data';
 
 export default function SettingsHubPage() {
-  const { user, role, switchDemoUser } = useAuth();
+  const { user, profiles, role, switchDemoUser } = useAuth();
   const { verticals, selectedVerticalId, setSelectedVerticalId } = useVertical();
   const { leads, customers, tasks, stages } = useCrmData();
   const { cards } = useProject();
   const { theme, setTheme } = useTheme();
 
   const [mounted, setMounted] = React.useState(false);
-  const [teamMembers, setTeamMembers] = React.useState(MOCK_PROFILES);
   const [isPinging, setIsPinging] = React.useState(false);
   const [pingResult, setPingResult] = React.useState<{ status: 'ok' | 'error'; latency: number } | null>(null);
 
+  const activeProfiles = React.useMemo(() => {
+    return profiles.filter((p) => !p.deleted_at && p.is_active);
+  }, [profiles]);
+
   React.useEffect(() => {
     setMounted(true);
-    try {
-      const savedMembers = localStorage.getItem('crm_team_members');
-      if (savedMembers) {
-        const parsed = JSON.parse(savedMembers);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          setTeamMembers(parsed);
-        }
-      }
-    } catch (e) {
-      console.warn('Failed to load team members from localStorage', e);
-    }
   }, []);
 
   const deletedLeadsCount = leads.filter((l) => Boolean(l.deleted_at)).length;
@@ -227,7 +218,7 @@ export default function SettingsHubPage() {
                 <Users className="h-5 w-5" />
               </div>
               <Badge variant="outline" className="text-xs font-normal">
-                {teamMembers.length} Members
+                {activeProfiles.length} Members
               </Badge>
             </div>
             <CardTitle className="mt-3 text-base font-semibold">
@@ -239,7 +230,7 @@ export default function SettingsHubPage() {
           </CardHeader>
           <CardContent className="space-y-3">
             <div className="flex items-center -space-x-2 overflow-hidden">
-              {teamMembers.map((p) => (
+              {activeProfiles.map((p) => (
                 <div
                   key={p.id}
                   title={`${p.full_name} (${p.role})`}
@@ -251,8 +242,8 @@ export default function SettingsHubPage() {
             </div>
             <div className="space-y-1">
               <div className="text-[11px] text-zinc-500">Quick Testing Role Switcher:</div>
-              <div className="flex items-center gap-1.5">
-                {teamMembers.map((p) => (
+              <div className="flex items-center gap-1.5 flex-wrap">
+                {activeProfiles.map((p) => (
                   <Button
                     key={p.id}
                     variant={user?.id === p.id ? 'default' : 'outline'}

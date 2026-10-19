@@ -101,6 +101,10 @@ export async function GET(request: Request) {
     const table = searchParams.get('table');
 
     if (table) {
+      if (table === 'profiles') {
+        const data = await supabaseRest('profiles?select=*&deleted_at=is.null&order=created_at.asc');
+        return NextResponse.json({ success: true, data });
+      }
       const data = await supabaseRest(`${table}?select=*&order=created_at.desc`);
       return NextResponse.json({ success: true, data });
     }
@@ -414,6 +418,95 @@ export async function POST(request: Request) {
       }
 
       return NextResponse.json({ success: true, message: 'Seeded demo data successfully' });
+    }
+
+    // Reset demo team
+    if (action === 'reset_team') {
+      await supabaseRest('profiles?deleted_at=not.is.null', {
+        method: 'PATCH',
+        body: JSON.stringify({ deleted_at: null, is_active: true, updated_at: new Date().toISOString() }),
+      }).catch(() => null);
+      return NextResponse.json({ success: true, message: 'Team reset to active status' });
+    }
+
+    // User Creation via Supabase Auth Admin
+    if (action === 'create_user' || (table === 'profiles' && action === 'insert')) {
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+      const userEmail = data.email?.trim().toLowerCase();
+      const userName = data.full_name?.trim() || userEmail;
+      const userRole = data.role || 'member';
+
+      const authRes = await fetch(`${supabaseUrl}/auth/v1/admin/users`, {
+        method: 'POST',
+        headers: {
+          apikey: serviceKey!,
+          Authorization: `Bearer ${serviceKey!}`,
+          'Content-Type': 'application/json',
+          'User-Agent': 'SupabaseAdmin/1.0',
+        },
+        body: JSON.stringify({
+          email: userEmail,
+          password: data.password || 'password123',
+          email_confirm: true,
+          user_metadata: {
+            full_name: userName,
+            role: userRole,
+          },
+        }),
+      });
+
+      if (!authRes.ok) {
+        const errJson = await authRes.json().catch(() => null);
+        return NextResponse.json(
+          { success: false, error: errJson?.message || 'Failed to create user in auth database' },
+          { status: 400 }
+        );
+      }
+
+      const authUser = await authRes.json();
+      // Ensure profile role is explicitly updated
+      await supabaseRest(`profiles?id=eq.${authUser.id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ role: userRole, full_name: userName }),
+      }).catch(() => null);
+
+      const createdProfile = await supabaseRest(`profiles?id=eq.${authUser.id}`).catch(() => []);
+      const profile = Array.isArray(createdProfile) && createdProfile.length > 0 ? createdProfile[0] : {
+        id: authUser.id,
+        email: userEmail,
+        full_name: userName,
+        role: userRole,
+        is_active: true,
+        created_at: new Date().toISOString(),
+      };
+
+      return NextResponse.json({ success: true, data: profile });
+    }
+
+    // User Removal via Supabase
+    if ((table === 'profiles' || action === 'delete_user') && action === 'delete' && id) {
+      const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
+      const serviceKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
+
+      // Soft delete in profiles
+      await supabaseRest(`profiles?id=eq.${id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ deleted_at: new Date().toISOString(), is_active: false }),
+      }).catch(() => null);
+
+      // Remove from auth admin
+      await fetch(`${supabaseUrl}/auth/v1/admin/users/${id}`, {
+        method: 'DELETE',
+        headers: {
+          apikey: serviceKey!,
+          Authorization: `Bearer ${serviceKey!}`,
+          'User-Agent': 'SupabaseAdmin/1.0',
+        },
+      }).catch(() => null);
+
+      return NextResponse.json({ success: true, id });
     }
 
     if (!table) {

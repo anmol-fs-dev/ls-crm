@@ -42,9 +42,15 @@ function AcceptInviteContent() {
     }
 
     setIsSubmitting(true);
-    await login(emailParam);
-    setIsSubmitting(false);
-    router.push('/');
+    setError(null);
+    try {
+      await login(emailParam);
+      router.push('/');
+    } catch (err: any) {
+      setError(err.message || 'Failed to activate invitation. Please contact your organization owner.');
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (

@@ -33,12 +33,11 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { MOCK_PROFILES } from '@/lib/mock-data';
 
 export function Topbar({ onOpenCommandPalette }: { onOpenCommandPalette?: () => void }) {
   const { theme, setTheme } = useTheme();
   const { selectedVertical, selectedVerticalId } = useVertical();
-  const { user, role, switchDemoUser, logout } = useAuth();
+  const { user, profiles, role, switchDemoUser, logout } = useAuth();
   const { tasks } = useCrmData();
 
   const [mounted, setMounted] = React.useState(false);
@@ -124,14 +123,16 @@ export function Topbar({ onOpenCommandPalette }: { onOpenCommandPalette?: () => 
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuRadioGroup value={user?.id} onValueChange={(val) => switchDemoUser(val)}>
-              {MOCK_PROFILES.map((profile) => (
-                <DropdownMenuRadioItem key={profile.id} value={profile.id} className="cursor-pointer">
-                  <div className="flex flex-col">
-                    <span className="text-xs font-medium">{profile.full_name}</span>
-                    <span className="text-[10px] text-zinc-500 capitalize">{profile.role} • {profile.email}</span>
-                  </div>
-                </DropdownMenuRadioItem>
-              ))}
+              {profiles
+                .filter((profile) => !profile.deleted_at && profile.is_active)
+                .map((profile) => (
+                  <DropdownMenuRadioItem key={profile.id} value={profile.id} className="cursor-pointer">
+                    <div className="flex flex-col">
+                      <span className="text-xs font-medium">{profile.full_name}</span>
+                      <span className="text-[10px] text-zinc-500 capitalize">{profile.role} • {profile.email}</span>
+                    </div>
+                  </DropdownMenuRadioItem>
+                ))}
             </DropdownMenuRadioGroup>
           </DropdownMenuContent>
         </DropdownMenu>
