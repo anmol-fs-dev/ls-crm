@@ -122,7 +122,6 @@ export async function GET(request: Request) {
       boardColumns,
       cards,
       cardComments,
-      auditLogs,
       deletedLeads,
       deletedCustomers,
       deletedTasks,
@@ -139,7 +138,6 @@ export async function GET(request: Request) {
       supabaseRest('board_columns?select=*&order=position.asc').catch(() => []),
       supabaseRest('cards?select=*&deleted_at=is.null&order=position.asc').catch(() => []),
       supabaseRest('card_comments?select=*&order=created_at.asc').catch(() => []),
-      supabaseRest('audit_logs?select=*&order=created_at.desc&limit=100').catch(() => []),
       supabaseRest('leads?select=*&deleted_at=not.is.null&order=deleted_at.desc').catch(() => []),
       supabaseRest('customers?select=*&deleted_at=not.is.null&order=deleted_at.desc').catch(() => []),
       supabaseRest('tasks?select=*&deleted_at=not.is.null&order=deleted_at.desc').catch(() => []),
@@ -159,7 +157,6 @@ export async function GET(request: Request) {
       boardColumns,
       cards,
       cardComments,
-      auditLogs,
       deletedLeads,
       deletedCustomers,
       deletedTasks,
@@ -736,19 +733,6 @@ export async function POST(request: Request) {
         method: 'PATCH',
         body: JSON.stringify({ deleted_at: new Date().toISOString() }),
       });
-      // Audit log
-      await supabaseRest('audit_logs', {
-        method: 'POST',
-        body: JSON.stringify({
-          action: 'DELETE',
-          entity_type: table.replace(/s$/, ''),
-          entity_id: id,
-          old_data: { active: true },
-          new_data: { deleted_at: new Date().toISOString(), status: 'moved_to_recycle_bin' },
-          ip_address: '127.0.0.1',
-          user_agent: 'Antigravity CRM Admin Console',
-        }),
-      }).catch(() => null);
       return NextResponse.json({ success: true, id });
     }
 
@@ -759,19 +743,6 @@ export async function POST(request: Request) {
         headers: { Prefer: 'return=representation' },
         body: JSON.stringify({ deleted_at: null, updated_at: new Date().toISOString() }),
       });
-      // Audit log
-      await supabaseRest('audit_logs', {
-        method: 'POST',
-        body: JSON.stringify({
-          action: 'UPDATE',
-          entity_type: table.replace(/s$/, ''),
-          entity_id: id,
-          old_data: { deleted_at: 'soft_deleted' },
-          new_data: { deleted_at: null, status: 'restored' },
-          ip_address: '127.0.0.1',
-          user_agent: 'Antigravity CRM Admin Console',
-        }),
-      }).catch(() => null);
       return NextResponse.json({ success: true, data: Array.isArray(restored) ? restored[0] : restored });
     }
 
@@ -780,19 +751,6 @@ export async function POST(request: Request) {
       await supabaseRest(`${table}?id=eq.${id}`, {
         method: 'DELETE',
       });
-      // Audit log
-      await supabaseRest('audit_logs', {
-        method: 'POST',
-        body: JSON.stringify({
-          action: 'DELETE',
-          entity_type: table.replace(/s$/, ''),
-          entity_id: id,
-          old_data: { deleted_at: 'soft_deleted' },
-          new_data: { status: 'purged_permanently' },
-          ip_address: '127.0.0.1',
-          user_agent: 'Antigravity CRM Admin Console',
-        }),
-      }).catch(() => null);
       return NextResponse.json({ success: true, id, status: 'purged' });
     }
 

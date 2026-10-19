@@ -449,7 +449,7 @@ function LeadDetailContent() {
                 <CardTitle className="text-xs font-semibold uppercase tracking-wider text-zinc-500">
                   Opportunity Timeline ({timelineActivities.length})
                 </CardTitle>
-                <span className="text-[10px] text-zinc-400">Chronological audit stream</span>
+                <span className="text-[10px] text-zinc-400">Chronological activity stream</span>
               </div>
             </CardHeader>
             <CardContent className="p-4">

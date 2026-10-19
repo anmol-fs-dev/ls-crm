@@ -489,7 +489,7 @@ export default function TasksPage() {
         open={!!deletingTaskId}
         onOpenChange={(open) => !open && setDeletingTaskId(null)}
         title="Delete Task"
-        description="Are you sure you want to delete this task? This action can be reviewed in audit logs."
+        description="Are you sure you want to delete this task? This action cannot be undone."
         confirmLabel="Delete"
         onConfirm={async () => {
           if (deletingTaskId) {

@@ -17,7 +17,6 @@ import {
   Briefcase,
   Layers,
   BarChart3,
-  ShieldAlert,
   Trash2,
   Keyboard,
   ArrowRight,
@@ -80,7 +79,6 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
     { label: 'View Tasks & Reminders', icon: CheckSquare, action: () => router.push('/tasks') },
     { label: 'View Project Boards', icon: Kanban, action: () => router.push('/projects') },
     { label: 'Executive Analytics & Reporting', icon: BarChart3, action: () => router.push('/analytics') },
-    ...(isAdmin ? [{ label: 'Audit Logs & Security Trail', icon: ShieldAlert, action: () => router.push('/audit-logs') }] : []),
     ...(isAdmin ? [{ label: 'Recycle Bin & Data Recovery', icon: Trash2, action: () => router.push('/recycle-bin') }] : []),
     { label: 'Workspace Settings Hub', icon: Sliders, action: () => router.push('/settings') },
     { label: 'Manage Verticals & Pipelines', icon: Layers, action: () => router.push('/settings/verticals') },
@@ -353,10 +351,6 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
                 <div className="flex items-center justify-between p-1">
                   <span className="text-zinc-600 dark:text-zinc-400">Jump to Analytics</span>
                   <span className="font-mono text-zinc-500 text-[11px]">/analytics</span>
-                </div>
-                <div className="flex items-center justify-between p-1">
-                  <span className="text-zinc-600 dark:text-zinc-400">Jump to Audit Logs</span>
-                  <span className="font-mono text-zinc-500 text-[11px]">/audit-logs</span>
                 </div>
                 <div className="flex items-center justify-between p-1">
                   <span className="text-zinc-600 dark:text-zinc-400">Jump to Recycle Bin</span>

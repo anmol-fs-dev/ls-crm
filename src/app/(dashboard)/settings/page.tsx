@@ -6,7 +6,6 @@ import {
   Layers,
   Users,
   ShieldCheck,
-  ShieldAlert,
   Trash2,
   Sliders,
   Sparkles,
@@ -427,45 +426,6 @@ export default function SettingsHubPage() {
             <Button asChild variant="ghost" size="sm" className="w-full justify-between text-xs font-medium group-hover:text-rose-600 dark:group-hover:text-rose-400">
               <Link href="/recycle-bin">
                 <span>Open Recycle Bin</span>
-                <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
-              </Link>
-            </Button>
-          </CardFooter>
-        </Card>
-
-        {/* Category 6: Audit Logs & Security Trail */}
-        <Card className="flex flex-col justify-between hover:border-zinc-300 dark:hover:border-zinc-700 transition-all shadow-xs group">
-          <CardHeader>
-            <div className="flex items-center justify-between">
-              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-cyan-50 text-cyan-600 dark:bg-cyan-950/60 dark:text-cyan-400">
-                <ShieldAlert className="h-5 w-5" />
-              </div>
-              <Badge variant="outline" className="text-xs font-normal">
-                Live Audit Stream
-              </Badge>
-            </div>
-            <CardTitle className="mt-3 text-base font-semibold">
-              Compliance & Audit Trail
-            </CardTitle>
-            <CardDescription className="text-xs leading-relaxed">
-              Immutable chronological record of all data changes, logins, stage movements, and field edits with JSON diffs.
-            </CardDescription>
-          </CardHeader>
-          <CardContent className="space-y-2 text-xs">
-            <p className="text-zinc-500 dark:text-zinc-400">
-              Captures actor identity, IP address, user agent, timestamp, before/after record snapshots, and action category.
-            </p>
-            <div className="flex items-center gap-2 pt-1">
-              <Badge variant="outline" className="text-[10px]">INSERT</Badge>
-              <Badge variant="outline" className="text-[10px]">UPDATE</Badge>
-              <Badge variant="outline" className="text-[10px]">DELETE</Badge>
-              <Badge variant="outline" className="text-[10px]">CONVERT</Badge>
-            </div>
-          </CardContent>
-          <CardFooter className="pt-0 border-t border-zinc-100 dark:border-zinc-800/60 mt-auto flex justify-between items-center py-3">
-            <Button asChild variant="ghost" size="sm" className="w-full justify-between text-xs font-medium group-hover:text-cyan-600 dark:group-hover:text-cyan-400">
-              <Link href="/audit-logs">
-                <span>Inspect Audit Trail</span>
                 <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
               </Link>
             </Button>

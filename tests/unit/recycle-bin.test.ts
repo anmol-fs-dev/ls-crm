@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { Lead, Task, Card, AuditLog } from '@/types/custom.types';
+import { Lead, Task, Card } from '@/types/custom.types';
 
 describe('Phase 7: Recycle Bin & Data Recovery Logic', () => {
   const sampleLeads: Lead[] = [
@@ -125,56 +125,5 @@ describe('Phase 7: Recycle Bin & Data Recovery Logic', () => {
     );
     expect(searchEmail).toHaveLength(1);
     expect(searchEmail[0].id).toBe('lead-3');
-  });
-
-  it('filters audit log entries by action and entity type', () => {
-    const logs: AuditLog[] = [
-      {
-        id: 'log-1',
-        vertical_id: 'vert-1',
-        user_id: 'usr-1',
-        action: 'CREATE',
-        entity_type: 'lead',
-        entity_id: 'lead-1',
-        old_data: null,
-        new_data: { name: 'Acme Health' },
-        ip_address: '127.0.0.1',
-        user_agent: 'Console',
-        created_at: '2026-02-10T10:00:00Z',
-      },
-      {
-        id: 'log-2',
-        vertical_id: 'vert-1',
-        user_id: 'usr-1',
-        action: 'UPDATE',
-        entity_type: 'lead',
-        entity_id: 'lead-1',
-        old_data: { stage: 'new' },
-        new_data: { stage: 'contacted' },
-        ip_address: '127.0.0.1',
-        user_agent: 'Console',
-        created_at: '2026-02-11T10:00:00Z',
-      },
-      {
-        id: 'log-3',
-        vertical_id: 'vert-3',
-        user_id: 'usr-2',
-        action: 'DELETE',
-        entity_type: 'card',
-        entity_id: 'crd-1',
-        old_data: { active: true },
-        new_data: { status: 'moved_to_recycle_bin' },
-        ip_address: '127.0.0.1',
-        user_agent: 'Console',
-        created_at: '2026-02-12T10:00:00Z',
-      },
-    ];
-
-    const deleteLogs = logs.filter((l) => l.action === 'DELETE');
-    expect(deleteLogs).toHaveLength(1);
-    expect(deleteLogs[0].entity_type).toBe('card');
-
-    const leadLogs = logs.filter((l) => l.entity_type === 'lead');
-    expect(leadLogs).toHaveLength(2);
   });
 });

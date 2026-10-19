@@ -11,7 +11,6 @@ import {
   Kanban,
   BarChart3,
   Trash2,
-  ShieldAlert,
   Settings,
   ChevronDown,
   Layers,
@@ -84,7 +83,6 @@ export function Sidebar() {
     { label: 'Projects', href: '/projects', icon: Kanban },
     { label: 'Analytics', href: '/analytics', icon: BarChart3 },
     ...(isAdmin ? [{ label: 'Recycle Bin', href: '/recycle-bin', icon: Trash2 }] : []),
-    ...(isAdmin ? [{ label: 'Audit Logs', href: '/audit-logs', icon: ShieldAlert }] : []),
     { label: 'Settings', href: '/settings', icon: Settings },
   ];
 

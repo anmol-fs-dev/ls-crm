@@ -9,7 +9,6 @@ import {
   Users,
   ShieldCheck,
   Trash2,
-  ShieldAlert,
   Sliders,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -97,13 +96,6 @@ export default function SettingsLayout({
               >
                 <Trash2 className="h-3.5 w-3.5 text-rose-500" />
                 <span>Recycle Bin</span>
-              </Link>
-              <Link
-                href="/audit-logs"
-                className="flex items-center gap-1.5 border-b-2 border-transparent px-3 py-2.5 text-xs sm:text-sm font-medium text-zinc-500 hover:text-cyan-600 transition-colors whitespace-nowrap"
-              >
-                <ShieldAlert className="h-3.5 w-3.5 text-cyan-500" />
-                <span>Audit Logs</span>
               </Link>
             </>
           )}

@@ -288,7 +288,7 @@ export default function TeamSettingsPage() {
             <h3 className="text-xs font-bold uppercase tracking-wider">Owner / Admin</h3>
           </div>
           <p className="text-[11px] text-zinc-500">
-            Unrestricted access to all verticals, billing, team management, user removal, and audit logs.
+            Unrestricted access to all verticals, billing, team management, and user removal.
           </p>
         </Card>
         <Card className="p-4 space-y-1 shadow-2xs">

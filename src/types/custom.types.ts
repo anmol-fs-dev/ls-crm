@@ -36,7 +36,6 @@ export type BoardColumn = Database['public']['Tables']['board_columns']['Row'];
 export type Card = Database['public']['Tables']['cards']['Row'];
 export type CardComment = Database['public']['Tables']['card_comments']['Row'];
 export type Tag = Database['public']['Tables']['tags']['Row'];
-export type AuditLog = Database['public']['Tables']['audit_logs']['Row'];
 
 export interface CardChecklistItem {
   id: string;
