@@ -250,12 +250,6 @@ export function Topbar({ onOpenCommandPalette }: { onOpenCommandPalette?: () => 
                 <span>Account & Profile</span>
               </Link>
             </DropdownMenuItem>
-            <DropdownMenuItem asChild>
-              <Link href="/settings/profile" className="cursor-pointer flex items-center text-xs">
-                <ShieldCheck className="mr-2 h-3.5 w-3.5 text-emerald-600" />
-                <span>MFA Status ({user?.mfa_enabled ? 'Active' : 'Setup'})</span>
-              </Link>
-            </DropdownMenuItem>
             <DropdownMenuSeparator />
             <DropdownMenuItem onClick={() => logout()} className="cursor-pointer text-xs text-red-600 focus:text-red-600">
               <LogOut className="mr-2 h-3.5 w-3.5" />

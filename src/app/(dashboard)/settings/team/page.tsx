@@ -205,10 +205,10 @@ export default function TeamSettingsPage() {
                   </Badge>
 
                   <Badge
-                    variant={member.mfa_enabled ? 'success' : 'outline'}
+                    variant={member.is_active ? 'success' : 'outline'}
                     className="text-[10px] h-5"
                   >
-                    {member.mfa_enabled ? 'MFA Active' : 'MFA Off'}
+                    {member.is_active ? 'Active' : 'Inactive'}
                   </Badge>
                 </div>
               </div>

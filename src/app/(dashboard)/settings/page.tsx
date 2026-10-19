@@ -96,16 +96,10 @@ export default function SettingsHubPage() {
                 >
                   {role} Access
                 </Badge>
-                {user?.mfa_enabled ? (
-                  <Badge className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 text-xs">
-                    <ShieldCheck className="h-3 w-3 mr-1 inline" />
-                    MFA Active
-                  </Badge>
-                ) : (
-                  <Badge variant="outline" className="border-amber-500/30 text-amber-600 dark:text-amber-400 text-xs">
-                    MFA Setup Recommended
-                  </Badge>
-                )}
+                <Badge className="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20 text-xs">
+                  <ShieldCheck className="h-3 w-3 mr-1 inline" />
+                  Account Active
+                </Badge>
               </div>
               <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
                 {user?.email} • Organization: <span className="font-medium text-zinc-700 dark:text-zinc-300">Multi-Vertical Company CRM</span>
@@ -270,25 +264,22 @@ export default function SettingsHubPage() {
           </CardFooter>
         </Card>
 
-        {/* Category 3: Account & MFA */}
+        {/* Category 3: Account & Profile */}
         <Card className="flex flex-col justify-between hover:border-zinc-300 dark:hover:border-zinc-700 transition-all shadow-xs group">
           <CardHeader>
             <div className="flex items-center justify-between">
               <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-amber-50 text-amber-600 dark:bg-amber-950/60 dark:text-amber-400">
                 <ShieldCheck className="h-5 w-5" />
               </div>
-              <Badge
-                variant="outline"
-                className={user?.mfa_enabled ? 'border-emerald-500 text-emerald-600' : 'text-zinc-500'}
-              >
-                {user?.mfa_enabled ? 'MFA Protected' : 'MFA Disabled'}
+              <Badge variant="outline" className="text-zinc-600 dark:text-zinc-400 text-xs">
+                Active Session
               </Badge>
             </div>
             <CardTitle className="mt-3 text-base font-semibold">
-              Account & Security Profile
+              Account & Profile Settings
             </CardTitle>
             <CardDescription className="text-xs leading-relaxed">
-              Manage your personal display name, email credentials, active sessions, and Multi-Factor Authentication.
+              Manage your personal display name, email credentials, password security, and active sessions.
             </CardDescription>
           </CardHeader>
           <CardContent className="space-y-3">
@@ -302,17 +293,15 @@ export default function SettingsHubPage() {
                 <span className="text-zinc-500">{user?.email}</span>
               </div>
               <div className="flex items-center justify-between text-zinc-600 dark:text-zinc-300">
-                <span>MFA Status:</span>
-                <span className={user?.mfa_enabled ? 'text-emerald-600 font-medium' : 'text-amber-600'}>
-                  {user?.mfa_enabled ? 'TOTP Authenticator' : 'Disabled'}
-                </span>
+                <span>Account Status:</span>
+                <span className="text-emerald-600 font-medium">Verified Active</span>
               </div>
             </div>
           </CardContent>
           <CardFooter className="pt-0 border-t border-zinc-100 dark:border-zinc-800/60 mt-auto flex justify-between items-center py-3">
             <Button asChild variant="ghost" size="sm" className="w-full justify-between text-xs font-medium group-hover:text-amber-600 dark:group-hover:text-amber-400">
               <Link href="/settings/profile">
-                <span>Manage Profile & MFA</span>
+                <span>Manage Profile & Password</span>
                 <ArrowRight className="h-3.5 w-3.5 transition-transform group-hover:translate-x-1" />
               </Link>
             </Button>

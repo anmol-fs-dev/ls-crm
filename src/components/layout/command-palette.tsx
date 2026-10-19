@@ -85,7 +85,7 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
     { label: 'Workspace Settings Hub', icon: Sliders, action: () => router.push('/settings') },
     { label: 'Manage Verticals & Pipelines', icon: Layers, action: () => router.push('/settings/verticals') },
     { label: 'Team Members & Permissions', icon: Users, action: () => router.push('/settings/team') },
-    { label: 'Account & MFA Security', icon: ShieldCheck, action: () => router.push('/settings/profile') },
+    { label: 'Account & Profile Settings', icon: ShieldCheck, action: () => router.push('/settings/profile') },
   ];
 
   const filteredNav = navActions.filter((item) =>
