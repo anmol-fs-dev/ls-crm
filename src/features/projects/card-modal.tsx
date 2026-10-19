@@ -33,6 +33,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { formatDate } from '@/lib/utils';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 
 interface CardModalProps {
   card: Card | null;
@@ -178,7 +179,8 @@ export function CardModal({ card, columns, isOpen, onClose }: CardModalProps) {
   const linkedCustomer = customers.find((c) => c.id === customerId);
 
   return (
-    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+    <>
+      <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto p-6 sm:rounded-xl">
         <DialogHeader className="border-b border-zinc-200 pb-4 dark:border-zinc-800">
           <div className="flex items-center justify-between gap-4">
@@ -211,30 +213,6 @@ export function CardModal({ card, columns, isOpen, onClose }: CardModalProps) {
             </div>
           </div>
         </DialogHeader>
-
-        {/* Delete Confirmation Alert */}
-        {showDeleteConfirm && (
-          <div className="rounded-lg border border-red-200 bg-red-50/70 p-3.5 text-xs text-red-900 dark:border-red-800/80 dark:bg-red-950/40 dark:text-red-300 my-2 flex items-center justify-between">
-            <span>Permanently delete this project card?</span>
-            <div className="flex gap-2">
-              <Button
-                size="sm"
-                variant="outline"
-                className="h-7 text-xs bg-white dark:bg-zinc-900"
-                onClick={() => setShowDeleteConfirm(false)}
-              >
-                Cancel
-              </Button>
-              <Button
-                size="sm"
-                className="h-7 text-xs bg-red-600 hover:bg-red-700 text-white"
-                onClick={handleDelete}
-              >
-                Confirm Delete
-              </Button>
-            </div>
-          </div>
-        )}
 
         {/* Main Content Grid */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 py-4">
@@ -569,5 +547,16 @@ export function CardModal({ card, columns, isOpen, onClose }: CardModalProps) {
         </DialogFooter>
       </DialogContent>
     </Dialog>
+
+    {/* Delete Card Confirmation Dialog */}
+    <ConfirmDialog
+      open={showDeleteConfirm}
+      onOpenChange={setShowDeleteConfirm}
+      title={`Delete Card "${card.title}"?`}
+      description="Are you sure you want to delete this project card? This record will be removed from this board."
+      confirmLabel="Delete Card"
+      onConfirm={handleDelete}
+    />
+  </>
   );
 }

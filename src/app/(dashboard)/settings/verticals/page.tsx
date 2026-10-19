@@ -89,6 +89,7 @@ export default function VerticalsSettingsPage() {
   const [isCreateModalOpen, setIsCreateModalOpen] = React.useState(false);
   const [editingVertical, setEditingVertical] = React.useState<Vertical | null>(null);
   const [archiveTarget, setArchiveTarget] = React.useState<Vertical | null>(null);
+  const [stageToDelete, setStageToDelete] = React.useState<PipelineStage | null>(null);
 
   // Stage editing states
   const [newStageName, setNewStageName] = React.useState('');
@@ -409,7 +410,7 @@ export default function VerticalsSettingsPage() {
                         variant="ghost"
                         size="icon"
                         className="h-7 w-7 text-zinc-400 hover:text-red-600"
-                        onClick={() => handleDeleteStage(stage.id)}
+                        onClick={() => setStageToDelete(stage)}
                         title="Remove Stage"
                       >
                         <Trash2 className="h-3.5 w-3.5" />
@@ -594,6 +595,21 @@ export default function VerticalsSettingsPage() {
           if (archiveTarget) {
             archiveVertical(archiveTarget.id);
             setArchiveTarget(null);
+          }
+        }}
+      />
+
+      {/* Delete Stage Confirmation Dialog */}
+      <ConfirmDialog
+        open={stageToDelete !== null}
+        onOpenChange={(open) => !open && setStageToDelete(null)}
+        title={`Delete Pipeline Stage "${stageToDelete?.name}"?`}
+        description="Are you sure you want to delete this pipeline stage? Any active opportunities in this stage should be moved to another stage."
+        confirmLabel="Delete Stage"
+        onConfirm={() => {
+          if (stageToDelete) {
+            handleDeleteStage(stageToDelete.id);
+            setStageToDelete(null);
           }
         }}
       />

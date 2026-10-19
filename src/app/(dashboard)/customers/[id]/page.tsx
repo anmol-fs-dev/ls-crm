@@ -74,6 +74,7 @@ function CustomerDetailContent() {
   const [actTitle, setActTitle] = React.useState('');
   const [actDesc, setActDesc] = React.useState('');
   const [isLogging, setIsLogging] = React.useState(false);
+  const [deletingTaskId, setDeletingTaskId] = React.useState<string | null>(null);
 
   const customer = customers.find((c) => c.id === customerId);
 
@@ -450,7 +451,7 @@ function CustomerDetailContent() {
                       setEditingTask(task);
                       setIsTaskModalOpen(true);
                     }}
-                    onDelete={(id) => deleteTask(id)}
+                    onDelete={(id) => setDeletingTaskId(id)}
                   />
                 ))
               )}
@@ -523,7 +524,7 @@ function CustomerDetailContent() {
         initialVerticalIds={linkedVerticals.map((v) => v.id)}
       />
 
-      {/* Delete Confirmation */}
+      {/* Delete Customer Confirmation */}
       <ConfirmDialog
         open={isDeleteOpen}
         onOpenChange={setIsDeleteOpen}
@@ -534,6 +535,21 @@ function CustomerDetailContent() {
           deleteCustomer(customer.id);
           setIsDeleteOpen(false);
           router.push('/customers');
+        }}
+      />
+
+      {/* Delete Task Confirmation Dialog */}
+      <ConfirmDialog
+        open={!!deletingTaskId}
+        onOpenChange={(open) => !open && setDeletingTaskId(null)}
+        title="Delete Task"
+        description="Are you sure you want to delete this task? This action cannot be undone."
+        confirmLabel="Delete"
+        onConfirm={async () => {
+          if (deletingTaskId) {
+            await deleteTask(deletingTaskId);
+            setDeletingTaskId(null);
+          }
         }}
       />
 

@@ -38,6 +38,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { EmptyState } from '@/components/ui/empty-state';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 
 export function ProjectBoard() {
   const {
@@ -72,6 +73,10 @@ export function ProjectBoard() {
 
   const [isColumnModalOpen, setIsColumnModalOpen] = React.useState(false);
   const [columnToEdit, setColumnToEdit] = React.useState<BoardColumn | null>(null);
+
+  // Delete confirmation states
+  const [isDeleteBoardOpen, setIsDeleteBoardOpen] = React.useState(false);
+  const [columnToDelete, setColumnToDelete] = React.useState<BoardColumn | null>(null);
 
   // Dragging card state for overlay
   const [activeCard, setActiveCard] = React.useState<Card | null>(null);
@@ -225,9 +230,8 @@ export function ProjectBoard() {
 
   const handleDeleteActiveBoard = async () => {
     if (!activeBoardId) return;
-    if (confirm('Are you sure you want to delete this board and its cards?')) {
-      await deleteBoard(activeBoardId);
-    }
+    await deleteBoard(activeBoardId);
+    setIsDeleteBoardOpen(false);
   };
 
   // Column actions
@@ -245,9 +249,10 @@ export function ProjectBoard() {
     }
   };
 
-  const handleDeleteColumnConfirm = async (colId: string) => {
-    if (confirm('Are you sure you want to delete this column?')) {
-      await deleteColumn(colId);
+  const handleDeleteColumnConfirm = async () => {
+    if (columnToDelete) {
+      await deleteColumn(columnToDelete.id);
+      setColumnToDelete(null);
     }
   };
 
@@ -337,6 +342,20 @@ export function ProjectBoard() {
               Settings
             </Button>
           )}
+
+          {/* Delete Board button */}
+          {activeBoard && boards.length > 1 && (
+            <Button
+              size="sm"
+              variant="ghost"
+              className="h-8 text-xs text-red-500 hover:text-red-700 hover:bg-red-50 dark:hover:bg-red-950/40"
+              onClick={() => setIsDeleteBoardOpen(true)}
+              title="Delete Active Board"
+            >
+              <Trash2 className="h-3.5 w-3.5 mr-1" />
+              Delete Board
+            </Button>
+          )}
         </div>
       </div>
 
@@ -423,7 +442,10 @@ export function ProjectBoard() {
                     setColumnToEdit(col);
                     setIsColumnModalOpen(true);
                   }}
-                  onDeleteColumn={handleDeleteColumnConfirm}
+                  onDeleteColumn={(colId) => {
+                    const col = columns.find((c) => c.id === colId);
+                    setColumnToDelete(col || ({ id: colId, name: 'this column' } as BoardColumn));
+                  }}
                 />
               );
             })}
@@ -459,6 +481,26 @@ export function ProjectBoard() {
         onClose={() => setIsColumnModalOpen(false)}
         onSubmit={handleSaveColumn}
         columnToEdit={columnToEdit}
+      />
+
+      {/* Delete Board Confirmation Dialog */}
+      <ConfirmDialog
+        open={isDeleteBoardOpen}
+        onOpenChange={setIsDeleteBoardOpen}
+        title={`Delete Board "${activeBoard?.name || 'Project Board'}"?`}
+        description="Are you sure you want to delete this project board? All columns and cards associated with this board will be permanently removed."
+        confirmLabel="Delete Board"
+        onConfirm={handleDeleteActiveBoard}
+      />
+
+      {/* Delete Column Confirmation Dialog */}
+      <ConfirmDialog
+        open={columnToDelete !== null}
+        onOpenChange={(open) => !open && setColumnToDelete(null)}
+        title={`Delete Column "${columnToDelete?.name || ''}"?`}
+        description="Are you sure you want to delete this column? All cards inside this column will also be removed."
+        confirmLabel="Delete Column"
+        onConfirm={handleDeleteColumnConfirm}
       />
     </div>
   );

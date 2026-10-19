@@ -78,6 +78,7 @@ function LeadDetailContent() {
   const [activityTitle, setActivityTitle] = React.useState('');
   const [activityDesc, setActivityDesc] = React.useState('');
   const [isLogging, setIsLogging] = React.useState(false);
+  const [deletingTaskId, setDeletingTaskId] = React.useState<string | null>(null);
 
   const lead = leads.find((l) => l.id === leadId);
 
@@ -435,7 +436,7 @@ function LeadDetailContent() {
                       setEditingTask(task);
                       setIsTaskModalOpen(true);
                     }}
-                    onDelete={(id) => deleteTask(id)}
+                    onDelete={(id) => setDeletingTaskId(id)}
                   />
                 ))
               )}
@@ -517,7 +518,7 @@ function LeadDetailContent() {
         onSuccess={(custId) => router.push(`/customers/${custId}`)}
       />
 
-      {/* Delete Confirmation Dialog */}
+      {/* Delete Opportunity Confirmation Dialog */}
       <ConfirmDialog
         open={isDeleteOpen}
         onOpenChange={setIsDeleteOpen}
@@ -528,6 +529,21 @@ function LeadDetailContent() {
           deleteLead(lead.id);
           setIsDeleteOpen(false);
           router.push('/leads');
+        }}
+      />
+
+      {/* Delete Task Confirmation Dialog */}
+      <ConfirmDialog
+        open={!!deletingTaskId}
+        onOpenChange={(open) => !open && setDeletingTaskId(null)}
+        title="Delete Task"
+        description="Are you sure you want to delete this task? This action cannot be undone."
+        confirmLabel="Delete"
+        onConfirm={async () => {
+          if (deletingTaskId) {
+            await deleteTask(deletingTaskId);
+            setDeletingTaskId(null);
+          }
         }}
       />
 
