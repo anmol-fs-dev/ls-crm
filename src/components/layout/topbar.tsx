@@ -15,6 +15,7 @@ import {
   AlertCircle,
   Clock,
   ArrowRight,
+  Sliders,
 } from 'lucide-react';
 import Link from 'next/link';
 import { useVertical } from '@/context/vertical-context';
@@ -237,6 +238,12 @@ export function Topbar({ onOpenCommandPalette }: { onOpenCommandPalette?: () => 
               </div>
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
+            <DropdownMenuItem asChild>
+              <Link href="/settings" className="cursor-pointer flex items-center text-xs">
+                <Sliders className="mr-2 h-3.5 w-3.5 text-indigo-500" />
+                <span>All Settings & Preferences</span>
+              </Link>
+            </DropdownMenuItem>
             <DropdownMenuItem asChild>
               <Link href="/settings/profile" className="cursor-pointer flex items-center text-xs">
                 <SettingsIcon className="mr-2 h-3.5 w-3.5" />

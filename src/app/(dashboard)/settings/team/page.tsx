@@ -85,13 +85,13 @@ export default function TeamSettingsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Page Header */}
-      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between border-b border-zinc-200 pb-5 dark:border-zinc-800">
+      {/* Sub-Header */}
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between pb-1">
         <div>
-          <h1 className="text-xl font-bold tracking-tight text-zinc-900 dark:text-zinc-50">
+          <h2 className="text-lg font-semibold tracking-tight text-zinc-900 dark:text-zinc-50">
             Team & Access Control
-          </h1>
-          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-1">
+          </h2>
+          <p className="text-xs text-zinc-500 dark:text-zinc-400 mt-0.5">
             Invite-only team membership with role-based permissions and per-vertical scoping.
           </p>
         </div>

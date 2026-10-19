@@ -85,7 +85,7 @@ export function Sidebar() {
     { label: 'Analytics', href: '/analytics', icon: BarChart3 },
     ...(isAdmin ? [{ label: 'Recycle Bin', href: '/recycle-bin', icon: Trash2 }] : []),
     ...(isAdmin ? [{ label: 'Audit Logs', href: '/audit-logs', icon: ShieldAlert }] : []),
-    { label: 'Settings', href: '/settings/verticals', icon: Settings },
+    { label: 'Settings', href: '/settings', icon: Settings },
   ];
 
   const activeVerticals = verticals.filter((v) => v.status === 'active');

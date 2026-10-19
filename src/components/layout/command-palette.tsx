@@ -22,6 +22,9 @@ import {
   Keyboard,
   ArrowRight,
   Search,
+  Sliders,
+  ShieldCheck,
+  Users,
 } from 'lucide-react';
 import { useVertical } from '@/context/vertical-context';
 import { useCrmData } from '@/context/crm-data-context';
@@ -79,7 +82,10 @@ export function CommandPalette({ open, onOpenChange }: CommandPaletteProps) {
     { label: 'Executive Analytics & Reporting', icon: BarChart3, action: () => router.push('/analytics') },
     ...(isAdmin ? [{ label: 'Audit Logs & Security Trail', icon: ShieldAlert, action: () => router.push('/audit-logs') }] : []),
     ...(isAdmin ? [{ label: 'Recycle Bin & Data Recovery', icon: Trash2, action: () => router.push('/recycle-bin') }] : []),
-    { label: 'Manage Verticals & Settings', icon: Settings, action: () => router.push('/settings/verticals') },
+    { label: 'Workspace Settings Hub', icon: Sliders, action: () => router.push('/settings') },
+    { label: 'Manage Verticals & Pipelines', icon: Layers, action: () => router.push('/settings/verticals') },
+    { label: 'Team Members & Permissions', icon: Users, action: () => router.push('/settings/team') },
+    { label: 'Account & MFA Security', icon: ShieldCheck, action: () => router.push('/settings/profile') },
   ];
 
   const filteredNav = navActions.filter((item) =>
